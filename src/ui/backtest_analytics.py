@@ -11,6 +11,7 @@ import pandas as pd
 
 from src.models.types import BacktestResult, BacktestRow
 from src.ui.backtest_display import MODEL_LABELS
+
 BOOTSTRAP_N = 2000
 BOOTSTRAP_SEED = 0
 
@@ -27,7 +28,9 @@ def format_saved_at(iso: str) -> str:
     return f"{dt.day} {dt.strftime('%b %Y')}, {dt.strftime('%H:%M')}"
 
 
-def bootstrap_mean_ci(values: list[float], n: int = BOOTSTRAP_N, seed: int = BOOTSTRAP_SEED) -> tuple[float, float, float]:
+def bootstrap_mean_ci(
+    values: list[float], n: int = BOOTSTRAP_N, seed: int = BOOTSTRAP_SEED
+) -> tuple[float, float, float]:
     """Mean and approximate 95% CI from event-level resampling."""
     arr = np.asarray(values, dtype=float)
     arr = arr[np.isfinite(arr)]
@@ -49,7 +52,7 @@ def rows_by_event(rows: list[BacktestRow]) -> dict[str, dict[str, BacktestRow]]:
 
 
 def event_level_frame(rows: list[BacktestRow]) -> pd.DataFrame:
-    """Long-form metrics for charts (one row per event × model)."""
+    """Long-form metrics for charts (one row per event x model)."""
     records: list[dict[str, Any]] = []
     for eid, by_model in rows_by_event(rows).items():
         rw = by_model.get("random_walk")

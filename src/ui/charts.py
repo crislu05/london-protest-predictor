@@ -11,7 +11,7 @@ from src.models.types import BacktestResult
 from src.ui.backtest_analytics import event_level_frame, kpi_values
 from src.ui.backtest_display import MODEL_LABELS, model_order
 from src.ui.layout import section
-from src.ui.plotly_style import GRID, GRID_STRONG, apply_chart_layout, model_marker_color
+from src.ui.plotly_style import GRID_STRONG, apply_chart_layout
 from src.ui.theta_table import feature_display_name
 
 
@@ -37,27 +37,25 @@ def _delta_caption(delta: float | None, suffix: str) -> None:
 def kpi_row(kpi: dict) -> None:
     c1, c2, c3 = st.columns(3)
     dest = kpi.get("dest_rate")
-    with c1:
-        with st.container(border=True):
-            st.metric("Destination top-3 hit rate", f"{dest:.0%}" if dest is not None else "—")
+    with c1, st.container(border=True):
+        st.metric("Destination top-3 hit rate", f"{dest:.0%}" if dest is not None else "—")
     ll = kpi.get("ll_rm")
     ll_d = kpi.get("ll_delta")
-    with c2:
-        with st.container(border=True):
-            st.metric("Mean log-likelihood", f"{ll:.3f}" if ll is not None else "—")
-            _delta_caption(ll_d, " vs shortest path")
+    with c2, st.container(border=True):
+        st.metric("Mean log-likelihood", f"{ll:.3f}" if ll is not None else "—")
+        _delta_caption(ll_d, " vs shortest path")
     ov = kpi.get("overlap_rm")
     ov_d = kpi.get("overlap_delta")
-    with c3:
-        with st.container(border=True):
-            st.metric("Mean route overlap", f"{ov * 100:.1f}%" if ov is not None else "—")
-            if ov_d is not None:
-                sign = "↑" if ov_d >= 0 else "↓"
-                color = "#16A34A" if ov_d >= 0 else "#DC2626"
-                st.markdown(
-                    f'<span style="color:{color};font-size:0.85rem">{sign} {ov_d:+.1f} pp vs shortest path</span>',
-                    unsafe_allow_html=True,
-                )
+    with c3, st.container(border=True):
+        st.metric("Mean route overlap", f"{ov * 100:.1f}%" if ov is not None else "—")
+        if ov_d is not None:
+            sign = "↑" if ov_d >= 0 else "↓"
+            color = "#16A34A" if ov_d >= 0 else "#DC2626"
+            delta_html = (
+                f'<span style="color:{color};font-size:0.85rem">'
+                f"{sign} {ov_d:+.1f} pp vs shortest path</span>"
+            )
+            st.markdown(delta_html, unsafe_allow_html=True)
 
 
 def overlap_distribution_chart(long_df: pd.DataFrame) -> go.Figure | None:

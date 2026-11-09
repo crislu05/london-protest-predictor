@@ -50,7 +50,9 @@ def apply_chart_layout(
     x_range: tuple[float, float] | None = None,
 ) -> go.Figure:
     fig.update_layout(
-        title=dict(text=title, font=dict(size=13, color=TEXT), x=0, xanchor="left") if title else None,
+        title=dict(text=title, font=dict(size=13, color=TEXT), x=0, xanchor="left")
+        if title
+        else None,
         font=FONT,
         height=height,
         showlegend=False,

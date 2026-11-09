@@ -6,8 +6,8 @@ import html
 import re
 from datetime import date, datetime, time
 
-import pydeck as pdk
 import pandas as pd
+import pydeck as pdk
 import streamlit as st
 
 from src.config import BACKTEST_PATH, DB_PATH
@@ -39,33 +39,6 @@ LAYER_OPTIONS = [
 ]
 DEFAULT_LAYERS = LAYER_OPTIONS[:4]
 DECK_TOOLTIP = {"html": "<b>{tooltip}</b>", "style": {"color": "white"}}
-_DEBUG_LOG = r"d:\oxhack26\.cursor\debug-9a926a.log"
-
-
-def _agent_debug_log(hypothesis_id: str, message: str, data: dict, *, run_id: str = "metric-scale") -> None:
-    #region agent log
-    import json
-    import time
-
-    try:
-        with open(_DEBUG_LOG, "a", encoding="utf-8") as fh:
-            fh.write(
-                json.dumps(
-                    {
-                        "sessionId": "9a926a",
-                        "hypothesisId": hypothesis_id,
-                        "location": "route_map.py:_event_header",
-                        "message": message,
-                        "data": data,
-                        "timestamp": int(time.time() * 1000),
-                        "runId": run_id,
-                    }
-                )
-                + "\n"
-            )
-    except OSError:
-        pass
-    #endregion
 
 
 def _events_by_id(
@@ -131,9 +104,11 @@ def _display_date(iso: str) -> str:
 
 
 def _end_time(event_id: str) -> str | None:
-    row = mapdata.cursor().execute(
-        "SELECT end_time FROM events WHERE event_id = ?", [event_id]
-    ).fetchone()
+    row = (
+        mapdata.cursor()
+        .execute("SELECT end_time FROM events WHERE event_id = ?", [event_id])
+        .fetchone()
+    )
     if not row or row[0] is None:
         return None
     return _format_clock(row[0])
@@ -203,20 +178,6 @@ def _event_header(ev: TrainingEvent | None) -> None:
     schedule = _schedule_label(ev.event_id, he) or "—"
     weather = _weather_label(ev)
     stops = _waypoint_stops(he)
-    #region agent log
-    _agent_debug_log(
-        "B",
-        "metric display strings",
-        {
-            "event_id": ev.event_id,
-            "turnout_len": len(turnout_s),
-            "schedule_len": len(schedule),
-            "weather_len": len(weather),
-            "weather": weather,
-            "renderer": "custom_grid",
-        },
-    )
-    #endregion
 
     with st.container(border=True):
         st.markdown(
@@ -424,7 +385,9 @@ def _route_layers(
     if "Actual" in active and actual:
         add_route(None, actual, "actual_casing", "Actual")
     if "Shortest path" in active and "shortest_path" in paths:
-        add_route("shortest_path", paths["shortest_path"], "shortest_path", MAP_LABELS["shortest_path"])
+        add_route(
+            "shortest_path", paths["shortest_path"], "shortest_path", MAP_LABELS["shortest_path"]
+        )
     if "Random walk" in active and "random_walk" in paths:
         add_route("random_walk", paths["random_walk"], "random_walk", MAP_LABELS["random_walk"])
     if "Route model" in active and "route_model" in paths:
@@ -472,22 +435,6 @@ def _resolve_map_view(fit_coords: list[LonLat], g: MarchGraph, frame_key: str) -
                     st.error("Could not frame this route on the map.")
             default = map_layers.initial_view_state(g)
         st.session_state["map_default_view"] = default
-        #region agent log
-        vs = st.session_state["map_default_view"]
-        _agent_debug_log(
-            "fit",
-            "map view reframe",
-            {
-                "frame_key": frame_key,
-                "n_fit_coords": len(fit_coords),
-                "zoom": float(vs.zoom),
-                "lon": float(vs.longitude),
-                "lat": float(vs.latitude),
-                "scroll_zoom": True,
-            },
-            run_id="map-frame",
-        )
-        #endregion
     return st.session_state.get("map_default_view", map_layers.initial_view_state(g))
 
 
@@ -509,7 +456,9 @@ def _metrics_table(rows: list[BacktestRow]) -> None:
     best_ll = df["Mean log-likelihood"].max()
     best_ov = df["Route overlap"].max()
     winner_ids = set(
-        df.loc[(df["Mean log-likelihood"] == best_ll) | (df["Route overlap"] == best_ov), "model_id"]
+        df.loc[
+            (df["Mean log-likelihood"] == best_ll) | (df["Route overlap"] == best_ov), "model_id"
+        ]
     )
     swatches = list(df["swatch"])
 
@@ -522,6 +471,7 @@ def _metrics_table(rows: list[BacktestRow]) -> None:
         mid = df.loc[row.name, "model_id"]
         bg = "background-color: #F8FAFC" if mid in winner_ids else ""
         return [bg] * len(row)
+
     styled = (
         show.style.format(
             {
@@ -601,21 +551,6 @@ def render() -> None:
                 view = _resolve_map_view(fit_coords, g, frame_key)
                 under_layers, over_layers = _context_layers(active)
                 layers = [*under_layers, *route_layers, *over_layers]
-                #region agent log
-                chevron_n = max(0, len(route_layers) - len(route_features))
-                _agent_debug_log(
-                    "deck",
-                    "deck layers built",
-                    {
-                        "route_features": len(route_features),
-                        "route_layers": len(route_layers),
-                        "chevron_layers_est": chevron_n,
-                        "interleaved": True,
-                        "frame_key": frame_key,
-                    },
-                    run_id="map-frame-postfix",
-                )
-                #endregion
                 st.pydeck_chart(
                     pdk.Deck(
                         layers=layers,

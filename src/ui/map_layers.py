@@ -18,7 +18,9 @@ MAX_ROUTE_SPAN_DEG = 0.2
 
 def lon_lat_in_london(lon: float, lat: float) -> bool:
     """True when a lon/lat pair is inside the central London map window."""
-    return MAX_ROUTE_LON[0] <= lon <= MAX_ROUTE_LON[1] and MAX_ROUTE_LAT[0] <= lat <= MAX_ROUTE_LAT[1]
+    return (
+        MAX_ROUTE_LON[0] <= lon <= MAX_ROUTE_LON[1] and MAX_ROUTE_LAT[0] <= lat <= MAX_ROUTE_LAT[1]
+    )
 
 
 def hex_to_rgb(hex_color: str, alpha: int = 200) -> list[int]:
@@ -57,7 +59,7 @@ def trim_polyline_backtrack(
     min_gap: int = 25,
     close_m: float = 25.0,
 ) -> Polyline:
-    """Drop short out-and-back spurs when a polyline nearly revisits an earlier point (map display)."""
+    """Trim short out-and-back spurs when a polyline nearly revisits an earlier point."""
     if len(coords) < min_gap + 2:
         return coords
     out: list[LonLat] = []
@@ -268,7 +270,7 @@ def route_path_and_chevron_layers(features: list[dict]) -> list[pdk.Layer]:
 def _closed_ring_path(ring: Polyline) -> list[list[float]]:
     pts = lonlat_path(ring)
     if len(pts) >= 2 and pts[0] != pts[-1]:
-        pts = pts + [pts[0]]
+        pts = [*pts, pts[0]]
     return pts
 
 

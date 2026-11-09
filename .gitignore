@@ -26,11 +26,13 @@ test_output/
 # Local secrets
 .env
 
-# Internal working notes, not part of the submission
+# Internal review notes, never part of the submission
 cursor.md
 progression_log.md
+docs/*audit*.md
 docs/dev.md
-docs/phase2.md
-docs/doc_style.md
 docs/db.md
 docs/model.md
+docs/phase2.md
+docs/doc_style.md
+docs/frontend.md

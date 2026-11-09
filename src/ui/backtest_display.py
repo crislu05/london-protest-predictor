@@ -29,7 +29,7 @@ METRICS = {
 
 
 def format_overlap_pct(fraction: float | None) -> str:
-    """Human percent string for a 0–1 Jaccard score (e.g. ``56.7%``)."""
+    """Human percent string for a 0-1 Jaccard score (e.g. ``56.7%``)."""
     if fraction is None:
         return "—"
     return f"{float(fraction) * 100:.{OVERLAP_PCT_DECIMALS}f}%"
