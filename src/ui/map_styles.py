@@ -1,4 +1,4 @@
-"""Map route line styles (audit palette)."""
+"""Map route line colours and widths."""
 
 from __future__ import annotations
 

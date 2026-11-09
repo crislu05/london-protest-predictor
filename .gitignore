@@ -26,13 +26,16 @@ test_output/
 # Local secrets
 .env
 
-# Internal review notes, never part of the submission
+# Local / internal notes (not shipped with the repo)
 cursor.md
 progression_log.md
+tooling/rewrite-authors.md
 docs/*audit*.md
 docs/dev.md
 docs/db.md
 docs/model.md
+docs/design-decisions.md
+docs/crowd-density-note.md
 docs/phase2.md
 docs/doc_style.md
 docs/frontend.md

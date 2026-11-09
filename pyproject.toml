@@ -72,7 +72,7 @@ select = [
     "D",
 ]
 
-# Temporary suppressions: see docs/design-decisions.md#lint-suppressions.
+# Legacy ingestion scripts: relaxed line length and pathlib style rules.
 [tool.ruff.lint.per-file-ignores]
 "src/ingestion/route_research/**" = [
     "E501",

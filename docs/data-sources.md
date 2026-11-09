@@ -1,26 +1,21 @@
 # Data sources
 
-The `src/ingestion/route_research/` pipeline downloads geographic, historical and contextual data to support London protest-route modelling.
+The `src/ingestion/route_research/` pipeline downloads geographic and contextual data for `python ingest.py`. Training labels come from versioned seed CSVs, not live event APIs.
 
 ## Data APIs and download services
 
-- **OpenStreetMap / OSMnx — London pedestrian street network:** https://www.openstreetmap.org/  
+- **OpenStreetMap / OSMnx — walk and main-road networks inside the TfL zones 1–2 boundary:** https://www.openstreetmap.org/  
   Documentation: https://osmnx.readthedocs.io/en/stable/
 
-- **OpenStreetMap Nominatim — Geocoding historical protest waypoints:** https://nominatim.openstreetmap.org/  
-  Usage policy: https://operations.osmfoundation.org/policies/nominatim/
+- **TfL Unified API — station fare zones (Zones 1–2 polygon):** https://api.tfl.gov.uk/StopPoint/Mode/tube,dlr,overground,elizabeth-line
 
-- **Copernicus GHSL — Satellite-derived urban population and built-up-area datasets:** https://human-settlement.emergency.copernicus.eu/downloadWizard.php
+- **OpenStreetMap Overpass (via OSMnx) — protest targets and open spaces:** https://overpass-api.de/  
+  `ingest.py` runs the `landmarks` step with `--layers targets open_spaces` only (embassies, government offices, monuments, squares, parks). Shops and warehouses are not downloaded in the default build.
 
-- **TfL Unified API — Station fare zones (for the Zones 1-2 boundary):** https://api.tfl.gov.uk/StopPoint/Mode/tube,dlr,overground,elizabeth-line
+- **Open-Meteo — hourly precipitation around each event date (no API key):** https://open-meteo.com/en/docs/historical-weather-api  
+  Stored in `event_context` for the route map. Not used in the eight-feature logit.
 
-- **OpenStreetMap Overpass (via OSMnx) — Embassies, government buildings, landmarks, squares, parks, shops, warehouses:** https://overpass-api.de/
-
-- **Open-Meteo — Historical and forecast hourly precipitation (no key):** https://open-meteo.com/en/docs/historical-weather-api
-
-**Out of scope after the phase-2 cut:** Wikipedia pageviews (media salience) and UK bank-holiday / Hijri calendar flags were removed from ingestion because nothing in the route model reads them; see [design-decisions.md#phase-2-scope-cut](design-decisions.md#phase-2-scope-cut).
-
-These sources provide street geometry, protest-event locations, transport conditions and urban characteristics. They do not directly provide historical sequences of crowd movement.
+These sources supply street geometry, cause targets, legal/restricted zone flags and per-event context. They do not provide crowd GPS traces; route labels are hand-reviewed march plans.
 
 ## Historical protest route seed data
 
@@ -83,14 +78,10 @@ This archive provides event dates, proposed routes, assembly locations and somet
 - [ITV London — February 2024 Palestine march reporting](https://www.itv.com/news/london/2024-02-02/police-increase-patrols-for-palestine-solidarity-campaign-in-london)
 - [London News Online — January 2024 Gaza march reporting](https://londonnewsonline.org.uk/news/thousands-of-protesters-turn-out-in-support-of-gaza/)
 
-### Data provenance and limitations
+### Data provenance
 
 Every historical event in `seed/events.csv` includes a `source_url`, `evidence_type` and route description.
 
 The `seed/waypoints.csv` file contains the corresponding ordered locations. The `event_id` field connects each waypoint to its event.
 
-Historical routes are primarily **published or announced procession itineraries**, not GPS measurements of actual protest crowds. Some routes are incomplete, and connecting waypoints using shortest paths produces inferred geometry, not directly observed movements.
-
-The seed dataset is a versioned research snapshot. The current ingestion scripts download complementary geographic and event data, but do not automatically scrape new historical route announcements.
-
-Sources may change or become unavailable over time. Their reuse and redistribution must comply with the respective source terms.
+Waypoint coordinates are **hand-reviewed** in `seed/geocode_cache.json` and `seed/waypoint_geocode_overrides.json`. Ingestion reads those files via `seed-coords`; it does not call Nominatim at build time.

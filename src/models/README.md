@@ -15,8 +15,6 @@ python -m src.models.train --quick          # backtest on five events only
 python -m src.models.train --no-bootstrap   # skip coefficient resampling
 ```
 
-Historical routes are **announced** itineraries; connections between geocoded waypoints are **shortest-path interpolations**, not GPS traces.
-
 ## Eight features and `prior_only`
 
 `route_model.json` lists features whose fitted weight stayed at the declared `PRIOR` (within `1e-6`), usually because the data never vary within choice sets:

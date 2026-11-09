@@ -58,7 +58,7 @@ def event_count_caption(
     metric: str,
     models: list[str],
 ) -> str:
-    """Append honest per-model event counts when ``_n`` keys are present."""
+    """Append per-model event counts when ``_n`` keys are present."""
     n_key = f"{metric}_n"
     n_by_model = {
         MODEL_LABELS.get(m, m): summary[m][n_key] for m in models if n_key in summary.get(m, {})
