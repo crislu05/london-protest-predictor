@@ -1,2 +1,2 @@
-regex:\nCo-authored-by: Cursor <cursoragent@cursor.com>==>
-regex:\nCo-authored-by: Claude[^\n]*==>
+regex:\nCo-[Aa]uthored-[Bb]y: Cursor <cursoragent@cursor.com>==>
+regex:\nCo-[Aa]uthored-[Bb]y: Claude[^\n]*==>
